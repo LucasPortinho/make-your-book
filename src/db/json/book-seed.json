@@ -1,0 +1,138 @@
+[
+    {
+      "id": "book-001",
+      "ownerId": "user-001",
+      "slug": "great-gatsby-summary",
+      "projectTitle": "The Great Gatsby - Summary",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-05-01T12:00:00Z",
+      "type": "summary",
+      "iaAgent": {
+        "name": "SummarizerBot",
+        "version": "1.0",
+        "style": "drawer"
+      }
+    },
+    {
+      "id": "book-002",
+      "ownerId": "user-001",
+      "slug": "moby-dick-comic",
+      "projectTitle": "Moby Dick - Comic Version",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-04-20T08:45:00Z",
+      "type": "comic",
+      "iaAgent": {
+        "name": "ComicGenie",
+        "version": "2.1",
+        "style": "realistic"
+      }
+    },
+    {
+      "id": "book-003",
+      "ownerId": "user-002",
+      "slug": "frankenstein-illustrate",
+      "projectTitle": "Frankenstein - Illustrated",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-05-15T17:30:00Z",
+      "type": "illustrate",
+      "iaAgent": {
+        "name": "IllustroAI",
+        "version": "1.3",
+        "style": "drawer"
+      }
+    },
+    {
+      "id": "book-004",
+      "ownerId": "user-003",
+      "slug": "hamlet-summary",
+      "projectTitle": "Hamlet - Summary",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-05-10T10:00:00Z",
+      "type": "summary",
+      "iaAgent": {
+        "name": "SummarizerBot",
+        "version": "1.0",
+        "style": "explanatory"
+      }
+    },
+    {
+      "id": "book-005",
+      "ownerId": "user-002",
+      "slug": "alice-wonderland-comic",
+      "projectTitle": "Alice in Wonderland - Comic",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-04-12T11:15:00Z",
+      "type": "comic",
+      "iaAgent": {
+        "name": "ComicGenie",
+        "version": "2.1",
+        "style": "colorful"
+      }
+    },
+    {
+      "id": "book-006",
+      "ownerId": "user-003",
+      "slug": "1984-illustrate",
+      "projectTitle": "1984 - Illustrated Version",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-05-05T16:00:00Z",
+      "type": "illustrate",
+      "iaAgent": {
+        "name": "IllustroAI",
+        "version": "1.3",
+        "style": "magic"
+      }
+    },
+    {
+      "id": "book-007",
+      "ownerId": "user-001",
+      "slug": "don-quixote-summary",
+      "projectTitle": "Don Quixote - Summary",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-04-25T13:20:00Z",
+      "type": "summary",
+      "iaAgent": {
+        "name": "SummarizerBot",
+        "version": "1.0",
+        "style": "funny"
+      }
+    },
+    {
+      "id": "book-008",
+      "ownerId": "user-002",
+      "slug": "pride-prejudice-comic",
+      "projectTitle": "Pride and Prejudice - Comic",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-05-18T18:10:00Z",
+      "type": "comic",
+      "iaAgent": {
+        "name": "ComicGenie",
+        "version": "2.1",
+        "style": "cartoon"
+      }
+    },
+    {
+      "id": "book-009",
+      "ownerId": "user-003",
+      "slug": "dracula-illustrate",
+      "projectTitle": "Dracula - Illustrated",
+      "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+      "modifiedAt": "2025-05-22T09:55:00Z",
+      "type": "illustrate",
+      "iaAgent": {
+        "name": "IllustroAI",
+        "version": "1.3",
+        "style": "anime"
+      }
+    }
+]
+  

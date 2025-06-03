@@ -1,0 +1,21 @@
+[
+    {
+      "id": "user-001",
+      "email": "alice@example.com",
+      "passwordHash": "$2b$10$OESaGaQnxzQy.w.mSnOP0eOF5B5D2nLhFDC74vrIIAMz4z4fcN0US",   
+      "createdAt": "2024-01-15T10:22:00Z"
+    },
+    {
+      "id": "user-002",
+      "email": "bob@example.com",
+      "passwordHash": "$2b$10$vf.0ZwrfInajg9kpHhkPD.RVPZXsK7ckhH9p5GYM.u9G/TKWaQ6P.",
+      "createdAt": "2024-02-20T14:45:00Z"
+    },
+    {
+      "id": "user-003",
+      "email": "carol@example.com",
+      "passwordHash": "$2b$10$O2W8.wOeIY3Bthnrfj67YOF4J1dlM3rBczBD7JyzXwpGGqwSXcFda",
+      "createdAt": "2024-03-05T09:30:00Z"
+    }
+  ]
+  

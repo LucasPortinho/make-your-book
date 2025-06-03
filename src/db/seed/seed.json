@@ -1,0 +1,87 @@
+{
+    "users": [
+      {
+        "id": "user-1",
+        "name": "Alice",
+        "lastName": "Silva",
+        "birthdate": "1990-05-14",
+        "email": "alice@example.com",
+        "passwordHash": "$2b$10$G37DZVCKG2x5VG5/NN7D9.MLKDEAmQdf056yRIjKDI5gxumdN0e2y",
+        "createdAt": "2025-05-01T10:00:00Z"
+      },
+      {
+        "id": "user-2",
+        "name": "Bruno",
+        "lastName": "Oliveira",
+        "birthdate": "1988-09-20",
+        "email": "bruno@example.com",
+        "passwordHash": "$2b$10$fBVl/JGGMC1wdcJD1RuwxeipvP/JQ45PzeC8B5f2un6VL2VbgBb9m",
+        "createdAt": "2025-05-05T11:30:00Z"
+      },
+      {
+        "id": "user-3",
+        "name": "Carla",
+        "lastName": "Souza",
+        "birthdate": "1995-12-01",
+        "email": "carla@example.com",
+        "passwordHash": "$2b$10$kvVlxuqIIABaJcaRoaPLzeE1Vw0x8iuQOHHq5BJFN35mONV/sANDi",
+        "createdAt": "2025-05-10T14:45:00Z"
+      }
+    ],
+    "agents": [
+      {
+        "id": "agent-1",
+        "model": "dalle-3",
+        "style": "realistic",
+        "instructions": "Crie imagens hiper realistas com foco em luz natural."
+      },
+      {
+        "id": "agent-2",
+        "model": "dalle-3",
+        "style": "anime",
+        "instructions": "Use traços de anime com cores vivas e expressões marcantes."
+      },
+      {
+        "id": "agent-3",
+        "model": "dalle-3",
+        "style": "cartoon",
+        "instructions": "Estilo cartoon amigável e colorido para crianças."
+      }
+    ],
+    "books": [
+      {
+        "id": "book-1",
+        "ownerId": "user-1",
+        "slug": "aventura-no-mar",
+        "projectTitle": "Aventura no Mar Azul",
+        "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+        "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+        "modifiedAt": "2025-05-15T09:00:00Z",
+        "type": "illustrate",
+        "agentId": "agent-1"
+      },
+      {
+        "id": "book-2",
+        "ownerId": "user-2",
+        "slug": "herois-do-futuro",
+        "projectTitle": "Heróis do Futuro",
+        "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+        "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+        "modifiedAt": "2025-05-18T13:20:00Z",
+        "type": "comic",
+        "agentId": "agent-2"
+      },
+      {
+        "id": "book-3",
+        "ownerId": "user-3",
+        "slug": "fabulas-divertidas",
+        "projectTitle": "Fábulas Divertidas para Crianças",
+        "originalUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+        "modifiedUrl": "http://localhost:3000/uploads/testeeeee-1748093729364.pdf",
+        "modifiedAt": "2025-05-20T17:45:00Z",
+        "type": "summary",
+        "agentId": "agent-3"
+      }
+    ]
+  }
+  

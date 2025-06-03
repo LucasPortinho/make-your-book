@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧠 LangChain Illustration Generator
 
-## Getting Started
+## 📚 Gerador de Ilustrações com LangChain
 
-First, run the development server:
+Este projeto é uma plataforma completa que transforma textos em **gibis**, **ilustrações de livros** e **resumos visuais**, utilizando inteligência artificial e geração de imagens.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### ⚙️ Tecnologias e Arquitetura
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* **LangChain** para orquestrar uma cadeia inteligente de prompts e ferramentas, processando:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+  * O **texto** do usuário
+  * O **tipo de ilustração** (ex: gibi, cena de livro, resumo visual)
+  * O **estilo de ilustração** (ex: cartoon, realista, aquarela)
+* **DALL·E** para geração das imagens com base nos dados processados.
+* **JWT Auth** para autenticação segura dos usuários.
+* **Stripe** para controle e cobrança de uso.
+* **Drizzle ORM** com padrão de **repositórios** para acesso e manipulação da base de dados.
+* **Next.js** com:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+  * Rotas estáticas e dinâmicas
+  * Páginas estáticas e dinâmicas
+  * Middleware de segurança
+  * Funções com cache para melhor desempenho
+* **ShadCN UI** com personalizações exclusivas para uma interface moderna e acessível.
 
-## Learn More
+### 🧠 Casos de Uso
 
-To learn more about Next.js, take a look at the following resources:
+* Estudantes gerando resumos ilustrados de livros
+* Professores criando gibis educativos a partir de conteúdos textuais
+* Autores e escritores testando visualmente suas histórias
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📚 LangChain Illustration Generator
 
-## Deploy on Vercel
+This project is a full-featured platform that transforms user text into **comics**, **book-style illustrations**, and **visual summaries**, powered by AI and image generation.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### ⚙️ Tech Stack & Architecture
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* **LangChain** to manage a smart chain of prompts and tools that process:
+
+  * The user’s **text**
+  * The **illustration type** (e.g., comic, book scene, summary)
+  * The **illustration style** (e.g., cartoon, realistic, watercolor)
+* **DALL·E** to generate images based on the processed input.
+* **JWT authentication** for secure user login.
+* **Stripe** to handle usage tracking and payments.
+* **Drizzle ORM** using the **Repository Pattern** to handle database interactions cleanly.
+* **Next.js** with:
+
+  * Static and dynamic routes
+  * Static and dynamic pages
+  * Middleware for strong request validation
+  * Cached functions for high performance
+* **ShadCN UI** with custom design system for a beautiful and accessible frontend.
+
+### 🧠 Use Cases
+
+* Students generating illustrated book summaries
+* Teachers creating educational comics from lesson content
+* Writers prototyping and visualizing their stories
