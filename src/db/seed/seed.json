@@ -31,19 +31,19 @@
     "agents": [
       {
         "id": "agent-1",
-        "model": "dalle-3",
+        "model": "dall-e-3",
         "style": "realistic",
         "instructions": "Crie imagens hiper realistas com foco em luz natural."
       },
       {
         "id": "agent-2",
-        "model": "dalle-3",
+        "model": "dall-e-3",
         "style": "anime",
         "instructions": "Use traços de anime com cores vivas e expressões marcantes."
       },
       {
         "id": "agent-3",
-        "model": "dalle-3",
+        "model": "dall-e-3",
         "style": "cartoon",
         "instructions": "Estilo cartoon amigável e colorido para crianças."
       }
