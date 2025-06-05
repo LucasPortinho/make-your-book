@@ -1,9 +1,10 @@
 import { drizzleDb } from "@/db/drizzle";
 import { agentsTable } from "@/db/drizzle/schemas";
 import { IaModel } from "@/models/ia-model";
-import { BookIllustration, BookSummary, ComicPage, ImageModel } from "@/models/illustration-models";
+import { BookIllustration, BookIllustrationResult, BookSummary, ComicPage, ComicResult, ImageModel, SummaryResult } from "@/models/illustration-models";
 import { ArtificalIntelligenceRepository } from "@/repositories/artificial-intelligence-repository";
 import { PdfProcessorService } from "@/services/pdf-processor";
+import { queryAsAgentModel } from "@/utils/queries-as-agents";
 import { eq } from "drizzle-orm";
 
 export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelligenceRepository {
@@ -55,7 +56,26 @@ export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelli
         }
     }
 
-    async generateBookIllustrations(agentId: string, pdfPath: string): Promise<BookIllustration[]> {
+    async deleteAgent(agentId: string): Promise<IaModel> {
+        const agent = await drizzleDb.query.agents.findFirst({
+            where: (agents, { eq }) => eq(agents.id, agentId)
+        })
+
+        if (!agent) {
+            throw new Error('O agente não existe')
+        }   
+
+        const agentQuery = queryAsAgentModel(agent)
+
+        if (!agentQuery) {
+            throw new Error("Agente não foi processado")
+        }
+
+        await drizzleDb.delete(agentsTable).where(eq(agentsTable.id, agentId))
+        return agentQuery
+    }
+
+    async callAgent(agentId: string): Promise<IaModel> {
         const agent = await drizzleDb.query.agents.findFirst({
             where: (agents, { eq }) => eq(agents.id, agentId)
         })
@@ -64,11 +84,16 @@ export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelli
             throw new Error('O agente não existe')
         }
 
-        const imageModel = this.getImageModel(agent.model);
-        return await this.pdfProcessor.generateBookIllustrations(pdfPath, agent.style, imageModel);
+        const agentQuery = queryAsAgentModel(agent)
+
+        if (!agentQuery) {
+            throw new Error("Agente não foi processado")
+        }
+        
+        return agentQuery
     }
 
-    async generateComicFromPdf(agentId: string, pdfPath: string): Promise<ComicPage[]> {
+    async generateBookIllustrations(agentId: string, pdfPath: string): Promise<BookIllustrationResult> {
         const agent = await drizzleDb.query.agents.findFirst({
             where: (agents, { eq }) => eq(agents.id, agentId)
         })
@@ -77,11 +102,36 @@ export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelli
             throw new Error('O agente não existe')
         }
 
+        const agentQuery = queryAsAgentModel(agent)
+
+        if (!agentQuery) {
+            throw new Error('O agente não foi bem processado')
+        }
+
         const imageModel = this.getImageModel(agent.model);
-        return await this.pdfProcessor.generateComicFromPdf(pdfPath, agent.style, imageModel);
+        return await this.pdfProcessor.generateBookIllustrations(pdfPath, agentQuery.style, imageModel);
     }
 
-    async summarizePdf(pdfPath: string): Promise<BookSummary> {
+    async generateComicFromPdf(agentId: string, pdfPath: string): Promise<ComicResult> {
+        const agent = await drizzleDb.query.agents.findFirst({
+            where: (agents, { eq }) => eq(agents.id, agentId)
+        })
+
+        if (!agent) {
+            throw new Error('O agente não existe')
+        }
+
+        const agentQuery = queryAsAgentModel(agent)
+
+        if (!agentQuery) {
+            throw new Error('O agente não foi bem processado')
+        }
+
+        const imageModel = this.getImageModel(agent.model);
+        return await this.pdfProcessor.generateComicFromPdf(pdfPath, agentQuery.style, imageModel);
+    }
+
+    async summarizePdf(pdfPath: string): Promise<SummaryResult> {
         // Resumo não precisa de agente específico
         return await this.pdfProcessor.summarizePdf(pdfPath);
     }

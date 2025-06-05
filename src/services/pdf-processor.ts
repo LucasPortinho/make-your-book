@@ -11,11 +11,13 @@ import {
   ImageModel 
 } from "@/models/illustration-models";
 import { ImagePromptBuilder } from "@/utils/builders/image-prompt-builder";
+import { PdfFileManager } from "@/utils/pdf-file-manager";
 
 export class PdfProcessorService {
   private llm: ChatOpenAI;
   private openai: OpenAI;
   private promptBuilder: ImagePromptBuilder;
+  private fileManager: PdfFileManager;
 
   constructor() {
     this.llm = new ChatOpenAI({
@@ -28,6 +30,7 @@ export class PdfProcessorService {
     });
     
     this.promptBuilder = new ImagePromptBuilder();
+    this.fileManager = new PdfFileManager();
   }
 
   async loadPdf(filePath: string): Promise<Document[]> {
@@ -56,17 +59,19 @@ export class PdfProcessorService {
     filePath: string,
     style: IllustrationStyle,
     imageModel: ImageModel
-  ): Promise<BookIllustration[]> {
+  ): Promise<{ illustrations: BookIllustration[], pdfPath: string }> {
     const documents = await this.loadPdf(filePath);
     const illustrations: BookIllustration[] = [];
     const maxIllustrations = 30;
     const pagesPerBatch = 15;
     const illustrationsPerBatch = 3;
 
+    // Processar em lotes de 15 páginas
     for (let i = 0; i < documents.length && illustrations.length < maxIllustrations; i += pagesPerBatch) {
       const batch = documents.slice(i, i + pagesPerBatch);
       const batchText = batch.map(doc => doc.pageContent).join("\n");
 
+      // Analisar o texto para encontrar cenas impactantes
       const scenesPrompt = `Analyze this text and identify up to ${illustrationsPerBatch} impactful scenes or descriptions that would make great illustrations. 
       Focus on:
       - Visual scenes with clear imagery
@@ -85,6 +90,7 @@ export class PdfProcessorService {
       const response = await this.llm.invoke(scenesPrompt);
       const scenes = JSON.parse(response.content as string);
 
+      // Gerar ilustrações para cada cena identificada
       for (const scene of scenes.slice(0, illustrationsPerBatch)) {
         if (illustrations.length >= maxIllustrations) break;
 
@@ -105,18 +111,22 @@ export class PdfProcessorService {
       }
     }
 
-    return illustrations;
+    // Criar PDF com ilustrações anexadas
+    const pdfPath = await this.fileManager.appendIllustrationsToPdf(filePath, illustrations);
+
+    return { illustrations, pdfPath };
   }
 
   async generateComicFromPdf(
     filePath: string,
     style: IllustrationStyle,
     imageModel: ImageModel
-  ): Promise<ComicPage[]> {
+  ): Promise<{ comicPages: ComicPage[], pdfPath: string }> {
     const documents = await this.loadPdf(filePath);
     const comicPages: ComicPage[] = [];
     const maxPages = 40;
 
+    // Dividir o texto em chunks para criar exatamente 40 páginas
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: Math.floor(documents.map(d => d.pageContent).join("\n").length / maxPages),
       chunkOverlap: 50,
@@ -125,8 +135,10 @@ export class PdfProcessorService {
     const allText = documents.map(doc => doc.pageContent).join("\n");
     const chunks = await splitter.splitText(allText);
 
+    // Garantir que temos exatamente 40 chunks
     const finalChunks = chunks.slice(0, maxPages);
     
+    // Se tivermos menos de 40, completar com o restante do texto dividido
     if (finalChunks.length < maxPages) {
       const remainingText = chunks.slice(maxPages).join(" ");
       const additionalChunks = await splitter.splitText(remainingText);
@@ -135,6 +147,8 @@ export class PdfProcessorService {
 
     for (let i = 0; i < Math.min(finalChunks.length, maxPages); i++) {
       const chunk = finalChunks[i];
+
+      // Analisar o texto para criar 4 painéis por página
       const panelsPrompt = `Convert this text into EXACTLY 4 comic book panels for a single page. 
       Each panel should:
       - Have a clear visual description
@@ -150,10 +164,12 @@ export class PdfProcessorService {
 
       const response = await this.llm.invoke(panelsPrompt);
       let panels = JSON.parse(response.content as string);
-
+      
+      // Garantir que temos exatamente 4 painéis
       if (panels.length > 4) {
         panels = panels.slice(0, 4);
       } else if (panels.length < 4) {
+        // Completar com painéis adicionais se necessário
         while (panels.length < 4) {
           panels.push({
             description: "Continuation of the scene",
@@ -162,6 +178,7 @@ export class PdfProcessorService {
         }
       }
 
+      // Gerar uma única imagem com os 4 painéis
       const prompt = this.promptBuilder.buildComicPagePrompt(panels, style);
       const imageUrl = await this.generateImage(prompt, imageModel);
 
@@ -176,13 +193,17 @@ export class PdfProcessorService {
       });
     }
 
-    return comicPages;
+    // Criar PDF do gibi
+    const pdfPath = await this.fileManager.createComicPdf(comicPages);
+
+    return { comicPages, pdfPath };
   }
 
-  async summarizePdf(filePath: string): Promise<BookSummary> {
+  async summarizePdf(filePath: string): Promise<{ summary: BookSummary, pdfPath: string, markdownPath: string }> {
     const documents = await this.loadPdf(filePath);
     const fullText = documents.map(doc => doc.pageContent).join("\n");
 
+    // Usar text splitter para processar textos longos
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: 4000,
       chunkOverlap: 200,
@@ -190,8 +211,10 @@ export class PdfProcessorService {
 
     const chunks = await splitter.splitText(fullText);
 
+    // Resumir em etapas se o texto for muito longo
     let summary = "";
     if (chunks.length > 1) {
+      // Primeiro, resumir cada chunk
       const chunkSummaries = await Promise.all(
         chunks.map(async (chunk) => {
           const response = await this.llm.invoke(
@@ -201,6 +224,7 @@ export class PdfProcessorService {
         })
       );
 
+      // Depois, resumir os resumos
       summary = (await this.llm.invoke(
         `Crie um resumo abrangente e bem estruturado a partir destes resumos parciais em português: ${chunkSummaries.join("\n")}`
       )).content as string;
@@ -210,20 +234,32 @@ export class PdfProcessorService {
       )).content as string;
     }
 
+    // Extrair pontos-chave
     const keyPointsResponse = await this.llm.invoke(
       `Extraia 5-7 pontos-chave deste resumo em formato de array JSON em português: ${summary}`
     );
     const keyPoints = JSON.parse(keyPointsResponse.content as string);
 
+    // Tentar extrair o título
     const titleResponse = await this.llm.invoke(
       `Extraia ou infira o título deste livro a partir do texto. Se não encontrar título, crie um apropriado em português. Amostra do texto: ${fullText.substring(0, 1000)}`
     );
 
-    return {
+    const bookSummary: BookSummary = {
       title: titleResponse.content as string,
       summary,
       keyPoints,
       totalPages: documents.length,
+    };
+
+    // Salvar resumo em PDF e Markdown
+    const pdfPath = await this.fileManager.saveSummaryAsPdf(bookSummary);
+    const markdownPath = await this.fileManager.saveSummaryAsMarkdown(bookSummary);
+
+    return {
+      summary: bookSummary,
+      pdfPath,
+      markdownPath
     };
   }
 }

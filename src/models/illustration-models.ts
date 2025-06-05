@@ -1,6 +1,4 @@
-import { IaModel } from "@/models/ia-model";
-
-export type IllustrationStyle = IaModel['style'];
+export type IllustrationStyle = 'drawer' | 'colorful' | 'cartoon' | 'magic' | 'anime' | 'realistic';
 
 export type ImageModel = 'dall-e-2' | 'dall-e-3';
 
@@ -26,4 +24,20 @@ export type BookSummary = {
   summary: string;
   keyPoints: string[];
   totalPages: number;
+};
+
+export type BookIllustrationResult = {
+  illustrations: BookIllustration[];
+  pdfPath: string; // Caminho do PDF com ilustrações
+};
+
+export type ComicResult = {
+  comicPages: ComicPage[];
+  pdfPath: string; // Caminho do PDF do gibi
+};
+
+export type SummaryResult = {
+  summary: BookSummary;
+  pdfPath: string; // Caminho do PDF do resumo
+  markdownPath: string; // Caminho do arquivo Markdown
 };
