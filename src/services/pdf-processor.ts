@@ -23,6 +23,7 @@ export class PdfProcessorService {
     this.llm = new ChatOpenAI({
       modelName: "gpt-4o-mini",
       temperature: 0.7,
+      apiKey: process.env.OPENAI_API_KEY
     });
     
     this.openai = new OpenAI({
@@ -88,7 +89,8 @@ export class PdfProcessorService {
       Text: ${batchText.substring(0, 3000)}`;
 
       const response = await this.llm.invoke(scenesPrompt);
-      const scenes = JSON.parse(response.content as string);
+      const cleanResponse = response.content.toString().replace('json', '').replace('```', '').replace('```', '').trim();
+      const scenes = JSON.parse(cleanResponse);
 
       // Gerar ilustrações para cada cena identificada
       for (const scene of scenes.slice(0, illustrationsPerBatch)) {
@@ -163,7 +165,8 @@ export class PdfProcessorService {
       Text: ${chunk}`;
 
       const response = await this.llm.invoke(panelsPrompt);
-      let panels = JSON.parse(response.content as string);
+      const cleanResponse = response.content.toString().replace('json', '').replace('```', '').replace('```', '').trim()
+      let panels = JSON.parse(cleanResponse);
       
       // Garantir que temos exatamente 4 painéis
       if (panels.length > 4) {
@@ -179,8 +182,10 @@ export class PdfProcessorService {
       }
 
       // Gerar uma única imagem com os 4 painéis
+      // TODO: tirar truncated
       const prompt = this.promptBuilder.buildComicPagePrompt(panels, style);
-      const imageUrl = await this.generateImage(prompt, imageModel);
+      const truncatedPrompt = prompt.toString().substring(0, 997) + '...'
+      const imageUrl = await this.generateImage(truncatedPrompt, imageModel);
 
       comicPages.push({
         pageNumber: i + 1,
@@ -238,7 +243,8 @@ export class PdfProcessorService {
     const keyPointsResponse = await this.llm.invoke(
       `Extraia 5-7 pontos-chave deste resumo em formato de array JSON em português: ${summary}`
     );
-    const keyPoints = JSON.parse(keyPointsResponse.content as string);
+    const cleanResponse = keyPointsResponse.content.toString().replace('json', '').replace('```', '').replace('```', '').trim()
+    const keyPoints = JSON.parse(cleanResponse);
 
     // Tentar extrair o título
     const titleResponse = await this.llm.invoke(

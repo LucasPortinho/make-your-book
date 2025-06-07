@@ -9,8 +9,16 @@ export class PdfFileManager {
 
   constructor() {
     // Caminho para a pasta uploads no public do Next.js
-    this.uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    this.uploadsDir = path.join(process.cwd(), 'public', 'illustrated');
   }
+
+  private cleanTextForPdf(text: string) {
+    return text
+      .replace(/[\r\n]+/g, ' ') // Remove quebras de linha
+      .replace(/[^\x20-\x7E\u00A0-\u00FF]/g, ' ') // Remove caracteres não suportados pelo WinAnsi
+      .replace(/\s+/g, ' ') // Remove espaços extras
+      .trim();
+  };
 
   async ensureUploadsDir() {
     try {
@@ -104,7 +112,7 @@ export class PdfFileManager {
     
     await fs.writeFile(outputPath, pdfBytes);
     
-    return `/uploads/${filename}`;
+    return `/illustrated/${filename}`;
   }
 
   async createComicPdf(comicPages: ComicPage[]): Promise<string> {
@@ -154,7 +162,7 @@ export class PdfFileManager {
     
     await fs.writeFile(outputPath, pdfBytes);
     
-    return `/uploads/${filename}`;
+    return `/illustrated/${filename}`;
   }
 
   async saveSummaryAsPdf(summary: BookSummary): Promise<string> {
@@ -209,7 +217,8 @@ export class PdfFileManager {
     
     for (const word of words) {
       const testLine = currentLine + word + ' ';
-      const textWidth = font.widthOfTextAtSize(testLine, 12);
+      const cleanLine = this.cleanTextForPdf(testLine)
+      const textWidth = font.widthOfTextAtSize(cleanLine, 12);
       
       if (textWidth > maxWidth) {
         page.drawText(currentLine.trim(), {
@@ -279,7 +288,7 @@ export class PdfFileManager {
     
     await fs.writeFile(outputPath, pdfBytes);
     
-    return `/uploads/${filename}`;
+    return `/illustrated/${filename}`;
   }
 
   async saveSummaryAsMarkdown(summary: BookSummary): Promise<string> {
@@ -307,6 +316,6 @@ ${summary.keyPoints.map(point => `- ${point}`).join('\n')}
     
     await fs.writeFile(outputPath, markdown);
     
-    return `/uploads/${filename}`;
+    return `/illustrated/${filename}`;
   }
 }
