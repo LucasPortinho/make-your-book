@@ -22,7 +22,9 @@ export type ComicPage = {
 export type BookSummary = {
   title: string;
   summary: string;
-  keyPoints: string[];
+  keyPoints: {
+    ponto: string
+  }[];
   totalPages: number;
 };
 
@@ -38,6 +40,5 @@ export type ComicResult = {
 
 export type SummaryResult = {
   summary: BookSummary;
-  pdfPath: string; // Caminho do PDF do resumo
   markdownPath: string; // Caminho do arquivo Markdown
 };

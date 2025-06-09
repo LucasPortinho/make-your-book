@@ -1,11 +1,13 @@
 import { drizzleDb } from "@/db/drizzle";
-import { agentsTable } from "@/db/drizzle/schemas";
+import { agentsTable, booksTable } from "@/db/drizzle/schemas";
+import { BookModel } from "@/models/book-model";
 import { IaModel } from "@/models/ia-model";
 import { BookIllustration, BookIllustrationResult, BookSummary, ComicPage, ComicResult, ImageModel, SummaryResult } from "@/models/illustration-models";
 import { ArtificalIntelligenceRepository } from "@/repositories/artificial-intelligence-repository";
 import { PdfProcessorService } from "@/services/pdf-processor";
 import { queryAsAgentModel } from "@/utils/queries-as-agents";
 import { eq } from "drizzle-orm";
+import { BookRepository } from "..";
 
 export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelligenceRepository {
     private pdfProcessor: PdfProcessorService;
@@ -93,9 +95,9 @@ export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelli
         return agentQuery
     }
 
-    async generateBookIllustrations(agentId: string, pdfPath: string): Promise<BookIllustrationResult> {
+    async generateBookIllustrations(book: Pick<BookModel, 'agentId' | 'id' | 'ownerId' | 'slug' | 'originalUrl' | 'projectTitle'>): Promise<BookIllustrationResult> {
         const agent = await drizzleDb.query.agents.findFirst({
-            where: (agents, { eq }) => eq(agents.id, agentId)
+            where: (agents, { eq }) => eq(agents.id, book.agentId)
         })
 
         if (!agent) {
@@ -109,12 +111,25 @@ export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelli
         }
 
         const imageModel = this.getImageModel(agent.model);
-        return await this.pdfProcessor.generateBookIllustrations(pdfPath, agentQuery.style, imageModel);
+        const illustration = await this.pdfProcessor.generateBookIllustrations(book.originalUrl, agentQuery.style, imageModel);
+        const bookModel: BookModel = {
+            id: book.id,
+            agentId: book.agentId,
+            originalUrl: book.originalUrl,
+            modifiedAt: new Date().toISOString(),
+            modifiedUrl: illustration.pdfPath,
+            ownerId: book.ownerId,
+            slug: book.slug,
+            projectTitle: book.projectTitle,
+            type: 'illustrate'
+        }
+        await BookRepository.create(bookModel)
+        return illustration
     }
 
-    async generateComicFromPdf(agentId: string, pdfPath: string): Promise<ComicResult> {
+    async generateComicFromPdf(book: Pick<BookModel, 'agentId' | 'id' | 'ownerId' | 'slug' | 'originalUrl' | 'projectTitle'>): Promise<ComicResult> {
         const agent = await drizzleDb.query.agents.findFirst({
-            where: (agents, { eq }) => eq(agents.id, agentId)
+            where: (agents, { eq }) => eq(agents.id, book.agentId)
         })
 
         if (!agent) {
@@ -128,11 +143,36 @@ export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelli
         }
 
         const imageModel = this.getImageModel(agent.model);
-        return await this.pdfProcessor.generateComicFromPdf(pdfPath, agentQuery.style, imageModel);
+        const illustration = await this.pdfProcessor.generateComicFromPdf(book.originalUrl, agentQuery.style, imageModel);
+        const bookModel: BookModel = {
+            id: book.id,
+            agentId: book.agentId,
+            originalUrl: book.originalUrl,
+            modifiedAt: new Date().toISOString(),
+            modifiedUrl: illustration.pdfPath,
+            ownerId: book.ownerId,
+            slug: book.slug,
+            projectTitle: book.projectTitle,
+            type: 'comic'
+        }
+        await BookRepository.create(bookModel)
+        return illustration
     }
 
-    async summarizePdf(pdfPath: string): Promise<SummaryResult> {
-        // Resumo não precisa de agente específico
-        return await this.pdfProcessor.summarizePdf(pdfPath);
+    async summarizePdf(book: Pick<BookModel, 'id' | 'ownerId' | 'slug' | 'originalUrl' | 'projectTitle'>): Promise<SummaryResult> {
+        const summary = await this.pdfProcessor.summarizePdf(book.originalUrl);
+        const bookModel: BookModel = {
+            id: book.id,
+            ownerId: book.ownerId,
+            slug: book.originalUrl,
+            originalUrl: book.originalUrl,
+            projectTitle: book.projectTitle,
+            agentId: 'summarizer',
+            modifiedAt: new Date().toISOString(),
+            modifiedUrl: summary.markdownPath,
+            type: 'summary'
+        }
+        await BookRepository.create(bookModel)
+        return summary
     }
 }

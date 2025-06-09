@@ -118,11 +118,15 @@ export function BookForm({ mode, title, description, buttonText, maxFileBytes }:
 
                     {mode === 'summary' ? (
                         <MainSelect 
+                        labelTitle="Estilo da I.A"
+                        placeholder="Selecione o estilo da inteligência artificial"
                         setState={setSummaryStyleState} 
                         state={summaryStylesState} 
                         selectMap={summaryStylesMap} />
                     ) : (
                         <MainSelect 
+                        labelTitle="Estilo da I.A"
+                        placeholder="Selecione o estilo da inteligência artificial"
                         setState={setImageStyleState} 
                         state={imageStyleState} 
                         selectMap={imageStylesMap} />

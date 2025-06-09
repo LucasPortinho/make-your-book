@@ -23,11 +23,11 @@ export class PdfProcessorService {
     this.llm = new ChatOpenAI({
       modelName: "gpt-4o-mini",
       temperature: 0.7,
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: process.env.OPENAI_API_KEY,
     });
     
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY    
     });
     
     this.promptBuilder = new ImagePromptBuilder();
@@ -79,12 +79,14 @@ export class PdfProcessorService {
       - Important character moments
       - Dramatic or emotional scenes
       - Descriptive passages about settings or environments
-      
+
       For each scene, provide:
       1. Page number (relative to this batch, starting from 1)
       2. A detailed description of the visual elements
+
+      If you think that it is a very neutral scene, you don't need to generate a scene, you should just return false in the JSON field "shouldIllustrate"
       
-      Format your response as a JSON array with objects containing 'pageNumber' and 'description'.
+      Format your response as a JSON array with objects containing 'pageNumber' and 'description' and 'shouldIllustrate' (a boolean field -> true ou false).
       
       Text: ${batchText.substring(0, 3000)}`;
 
@@ -95,6 +97,7 @@ export class PdfProcessorService {
       // Gerar ilustrações para cada cena identificada
       for (const scene of scenes.slice(0, illustrationsPerBatch)) {
         if (illustrations.length >= maxIllustrations) break;
+        if (!scene.shouldIllustrate) break
 
         const prompt = this.promptBuilder.buildIllustrationPrompt(
           scene.description,
@@ -103,7 +106,6 @@ export class PdfProcessorService {
         );
 
         const imageUrl = await this.generateImage(prompt, imageModel);
-
         illustrations.push({
           pageNumber: i + scene.pageNumber,
           imageUrl,
@@ -115,7 +117,6 @@ export class PdfProcessorService {
 
     // Criar PDF com ilustrações anexadas
     const pdfPath = await this.fileManager.appendIllustrationsToPdf(filePath, illustrations);
-
     return { illustrations, pdfPath };
   }
 
@@ -126,7 +127,7 @@ export class PdfProcessorService {
   ): Promise<{ comicPages: ComicPage[], pdfPath: string }> {
     const documents = await this.loadPdf(filePath);
     const comicPages: ComicPage[] = [];
-    const maxPages = 40;
+    const maxPages = 3;
 
     // Dividir o texto em chunks para criar exatamente 40 páginas
     const splitter = new RecursiveCharacterTextSplitter({
@@ -204,7 +205,7 @@ export class PdfProcessorService {
     return { comicPages, pdfPath };
   }
 
-  async summarizePdf(filePath: string): Promise<{ summary: BookSummary, pdfPath: string, markdownPath: string }> {
+  async summarizePdf(filePath: string): Promise<{ summary: BookSummary, markdownPath: string }> {
     const documents = await this.loadPdf(filePath);
     const fullText = documents.map(doc => doc.pageContent).join("\n");
 
@@ -251,6 +252,7 @@ export class PdfProcessorService {
       `Extraia ou infira o título deste livro a partir do texto. Se não encontrar título, crie um apropriado em português. Amostra do texto: ${fullText.substring(0, 1000)}`
     );
 
+
     const bookSummary: BookSummary = {
       title: titleResponse.content as string,
       summary,
@@ -258,13 +260,13 @@ export class PdfProcessorService {
       totalPages: documents.length,
     };
 
-    // Salvar resumo em PDF e Markdown
-    const pdfPath = await this.fileManager.saveSummaryAsPdf(bookSummary);
+    console.log(bookSummary)
+
+    // Salvar resumo em Markdown
     const markdownPath = await this.fileManager.saveSummaryAsMarkdown(bookSummary);
 
     return {
       summary: bookSummary,
-      pdfPath,
       markdownPath
     };
   }

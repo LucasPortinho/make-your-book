@@ -293,6 +293,7 @@ export class PdfFileManager {
 
   async saveSummaryAsMarkdown(summary: BookSummary): Promise<string> {
     await this.ensureUploadsDir();
+    console.log(summary.keyPoints)
 
     const markdown = `# ${summary.title}
 
@@ -304,7 +305,7 @@ ${summary.summary}
 
 ## Pontos-Chave
 
-${summary.keyPoints.map(point => `- ${point}`).join('\n')}
+${summary.keyPoints.map(point => `- ${point.ponto}`).join('\n')}
 
 ---
 

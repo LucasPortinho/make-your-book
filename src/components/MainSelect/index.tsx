@@ -7,16 +7,18 @@ type MainSelectProps = {
     state: string;
     selectMap: Record<string, string>;
     setState: Dispatch<SetStateAction<string>>;
+    labelTitle: string;
+    placeholder: string
 }
 
-export function MainSelect({ state, setState, selectMap }: MainSelectProps) {
+export function MainSelect({ placeholder, labelTitle, state, setState, selectMap }: MainSelectProps) {
     return (
         <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="style">Estilo da I.A.</Label>
+            <Label htmlFor="style">{labelTitle}</Label>
             
             <Select value={state} onValueChange={setState}>
                 <SelectTrigger className="w-full bg-white cursor-pointer">
-                    <SelectValue placeholder="Selecione o estilo da inteligência artificial"/>
+                    <SelectValue placeholder={placeholder}/>
                 </SelectTrigger>
 
                 <SelectContent position="popper">

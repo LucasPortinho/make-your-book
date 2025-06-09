@@ -3,17 +3,12 @@
 import * as React from "react"
 import {
   BookOpenText,
+  Bot,
   Brush,
   CircleHelp,
-  Frame,
   Info,
-  InfoIcon,
   Library,
-  Map,
   NotebookPen,
-  PieChart,
-  UserRoundCheck,
-  UserRoundSearch,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -91,6 +86,21 @@ const data = {
         },
       ],
     },
+    {
+      title: 'Agentes',
+      url: '#',
+      icon: Bot,
+      items: [
+        {
+          title: 'Criar agentes',
+          url: '/home/create-agents'
+        },
+        {
+          title: 'Meus agentes',
+          url: '/home/my-agents'
+        }
+      ]
+    }
   ],
   projects: [
     {
