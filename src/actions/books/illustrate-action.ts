@@ -5,6 +5,7 @@ import { getZodErrorMessages } from "@/utils/get-zod-error-messages"
 import { makeSlugFromText } from "@/utils/make-slug-from-text"
 import { extname, resolve } from "path"
 import { mkdir, writeFile } from "fs/promises"
+import { makeRandomString } from "@/utils/make-random-string"
 
 type IllustrateActionState = {
     errors?: string[],
@@ -12,7 +13,7 @@ type IllustrateActionState = {
 }
 
 export async function illustrateAction(prevState: IllustrateActionState, formData: FormData): Promise<IllustrateActionState> {
-    // TODO: verificar a autenticação
+    // TODO: verificar a autenticação e corrigir bug de salvar mesmo com erro nos dados
     const makeResult = ({ url='', errors=[''] }) => ({ url, errors })
     
     if (!(formData instanceof FormData)) {
@@ -73,15 +74,8 @@ export async function illustrateAction(prevState: IllustrateActionState, formDat
     }
 
     const validData = zodParsedObj.data
-
-    // const book: BookModel = {
-    //     projectTitle: validData.title,
-    //     modifiedAt: new Date().toISOString(),
-    //     iaAgent: createAgent(validData.style),
-    //     type: 'illustrate',
-    //     slug: makeSlugFromText(validData.title),  // Adicionar slug e o id do usuário
-    //     originalUrl,
-    // }
-
-    return {}
+    console.log(validData)
+    return {
+        success: `true-${makeRandomString()}`
+    }
 }

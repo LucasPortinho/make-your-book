@@ -1,15 +1,17 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import {  NotebookPen } from "lucide-react";
+import { BotIcon } from "lucide-react";
 import { MainSelect } from "@/components/MainSelect";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { IaModel } from "@/models/ia-model";
 import { MainTextarea } from "@/components/MainTextarea";
+import { createAgentAction } from "@/actions/agents/create-agent-action";
+import { toast } from "react-toastify";
 
 type AgentFormProps = {
     title: string;
@@ -35,8 +37,34 @@ export function AgentForm({ title, description, buttonText }: AgentFormProps) {
         'gpt-image-1': 'gpt-image-1'
     }
 
+    const initialState = {
+        errors: [''],
+        success: '',
+    }
+
+    const [state, formAction, isPending] = useActionState(createAgentAction, initialState)
+
+    useEffect(() => {
+        if (!state.errors) return;
+
+        if (state.errors.length > 0) {
+            state.errors.forEach(error => {
+                if (error.length > 0) {
+                    return toast.error(error)
+                }
+            })
+        }
+    }, [state])
+
+    useEffect(() => {
+        if (state.success) {
+            toast.dismiss()
+            toast.success('Agente criado com sucesso!')
+        }
+    }, [state.success])
+
     return (
-        <form className="flex flex-1 items-center justify-center">
+        <form action={formAction} className="flex flex-1 items-center justify-center">
             <Card className="w-lg mx-3 bg-slate-200 sm:w-md lg:w-2xl">
                 <CardHeader>
                     <CardTitle className="text-xl">{title}</CardTitle>
@@ -51,8 +79,8 @@ export function AgentForm({ title, description, buttonText }: AgentFormProps) {
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="title">Nome do agente</Label>
                         <Input 
-                        id="title" 
-                        name="title"
+                        id="name" 
+                        name="name"
                         placeholder="Nome do agente" 
                         minLength={3} maxLength={80}  
                         className="bg-white" 
@@ -79,6 +107,10 @@ export function AgentForm({ title, description, buttonText }: AgentFormProps) {
                     <MainTextarea
                     labelTitle="Instruções (opcional)"
                     placeholder="Digite as instruções que você deseja passar"
+                    className="break-all resize-none"
+                    descriptionMessage="Essas instruções servirão como base para tratamentos mais específicos do seu agente"
+                    maxLength={600}
+                    name="instructions"
                     />
                 </div>
                 
@@ -87,8 +119,8 @@ export function AgentForm({ title, description, buttonText }: AgentFormProps) {
 
                 </CardContent>
                 <CardFooter className="flex flex-col mt-6">
-                    <Button className="w-full transition cursor-pointer mt-2" type="submit" >
-                        {buttonText} <NotebookPen />
+                    <Button disabled={isPending} className="w-full transition cursor-pointer mt-2" type="submit" >
+                        {buttonText} <BotIcon />
                     </Button>
                 </CardFooter>
             </Card>

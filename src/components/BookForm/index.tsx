@@ -21,9 +21,10 @@ type BookFormProps = {
     description: string;
     buttonText: string;
     maxFileBytes: number;
+    agents: IaModel[]
 }
 
-export function BookForm({ mode, title, description, buttonText, maxFileBytes }: BookFormProps) {
+export function BookForm({ mode, title, description, buttonText, maxFileBytes, agents }: BookFormProps) {
     const actionsMap = {
         illustrate: illustrateAction,
         summary: summaryAction,
@@ -31,32 +32,19 @@ export function BookForm({ mode, title, description, buttonText, maxFileBytes }:
     }
     
     const inputRef = useRef<HTMLInputElement>(null)
-    const [imageStyleState, setImageStyleState] = useState('')
-    const [summaryStylesState, setSummaryStyleState] = useState('')
+    const [modelState, setModelState] = useState('')
 
     const initialState = {
         errors: [''],
         success: '',
     }
 
-    const [state, formAction, isPending] = useActionState(actionsMap[mode], initialState)
+    const [state, formAction, isPending] = useActionState(actionsMap[mode], initialState);
 
-    const imageStylesMap: Record<IaModel['style'], string> = {
-        drawer: 'Desenhista',
-        anime: 'Anime',
-        colorful: 'Colorido',
-        cartoon: 'Cartoon',
-        magic: 'Mágico',
-        realistic: 'Magic'
-    }
-
-    const summaryStylesMap = {
-        explanatory: 'Explicatório',
-        funny: 'Engraçado',
-        dynamic: 'Dinâmico',
-        organizer: 'Organizar o conteúdo',
-        translator: 'Tradutor',
-    }
+    const agentsMap = agents.reduce((acc, curr, index) => {
+        acc[curr.id] = curr.name
+        return acc
+    }, {} as Record<IaModel['id'], IaModel['name']>)
 
     // TODO: Adicionar inputRef para o select também
     function handleClick() {
@@ -84,6 +72,7 @@ export function BookForm({ mode, title, description, buttonText, maxFileBytes }:
         if (!state.errors) return;
 
         if (state.errors.length > 0) {
+            toast.dismiss()
             state.errors.forEach(error => {
                 if (error.length > 0) {
                     return toast.error(error)
@@ -91,6 +80,13 @@ export function BookForm({ mode, title, description, buttonText, maxFileBytes }:
             })
         }
     }, [state])
+
+    useEffect(() => {
+        if (!!state.success) {
+            toast.dismiss()
+            toast.success('Novo livro gerado com sucesso')
+        }
+    }, [state.success])
 
     return (
         <form action={formAction} className="flex flex-1 items-center justify-center">
@@ -116,24 +112,15 @@ export function BookForm({ mode, title, description, buttonText, maxFileBytes }:
                         required/>
                     </div>
 
-                    {mode === 'summary' ? (
-                        <MainSelect 
+                    <MainSelect 
                         labelTitle="Estilo da I.A"
                         placeholder="Selecione o estilo da inteligência artificial"
-                        setState={setSummaryStyleState} 
-                        state={summaryStylesState} 
-                        selectMap={summaryStylesMap} />
-                    ) : (
-                        <MainSelect 
-                        labelTitle="Estilo da I.A"
-                        placeholder="Selecione o estilo da inteligência artificial"
-                        setState={setImageStyleState} 
-                        state={imageStyleState} 
-                        selectMap={imageStylesMap} />
-                    )}
+                        setState={setModelState} 
+                        state={modelState} 
+                        selectMap={agentsMap} />
                 </div>
 
-                <input type="hidden" name="style" value={imageStyleState} />
+                <input type="hidden" name="model" value={modelState} />
 
                 </CardContent>
                 <CardFooter className="flex flex-col mt-6">
@@ -145,7 +132,7 @@ export function BookForm({ mode, title, description, buttonText, maxFileBytes }:
                         Enviar arquivo <UploadIcon />
                     </Button>
 
-                    <Button className="w-full transition cursor-pointer mt-2" type="submit" >
+                    <Button disabled={isPending} className="w-full transition cursor-pointer mt-2" type="submit" >
                         {buttonText} <NotebookPen />
                     </Button>
 

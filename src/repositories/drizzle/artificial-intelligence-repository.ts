@@ -5,7 +5,7 @@ import { IaModel } from "@/models/ia-model";
 import { BookIllustration, BookIllustrationResult, BookSummary, ComicPage, ComicResult, ImageModel, SummaryResult } from "@/models/illustration-models";
 import { ArtificalIntelligenceRepository } from "@/repositories/artificial-intelligence-repository";
 import { PdfProcessorService } from "@/services/pdf-processor";
-import { queryAsAgentModel } from "@/utils/queries-as-agents";
+import { queriesAsAgentsModels, queryAsAgentModel } from "@/utils/queries-as-agents";
 import { eq } from "drizzle-orm";
 import { BookRepository } from "..";
 
@@ -95,6 +95,40 @@ export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelli
         return agentQuery
     }
 
+    async findAllAgents(): Promise<IaModel[]> {
+        const agents = await drizzleDb.query.agents.findMany({
+            orderBy: (agents, { desc }) => desc(agents.name)
+        })
+
+        const agentsQueries = queriesAsAgentsModels(agents)
+        return agentsQueries
+    }
+
+    async findAllAgentsByUserId(userId: string): Promise<IaModel[]> {
+        const agents = await drizzleDb.query.agents.findMany({
+            where: (agents, { eq }) => eq(agents.ownerId, userId)
+        })
+
+        const agentsQueries = queriesAsAgentsModels(agents)
+        return agentsQueries
+    }
+
+    async findAllPublicAgents(): Promise<IaModel[]> {
+        const agents = await drizzleDb.query.agents.findMany({
+            where: (agents, { isNull }) => isNull(agents.ownerId)
+        })
+
+        const agentsQueries = queriesAsAgentsModels(agents)
+        return agentsQueries
+    }
+
+    async findPublicAndByUser(userId: string): Promise<IaModel[]> {
+        const agents = await drizzleDb.query.agents.findMany({
+            where: (agents, { eq, or, isNull }) => or(eq(agents.ownerId, userId), isNull(agents.ownerId))
+        })
+        const agentsQueries = queriesAsAgentsModels(agents)
+        return agentsQueries
+    }
     async generateBookIllustrations(book: Pick<BookModel, 'agentId' | 'id' | 'ownerId' | 'slug' | 'originalUrl' | 'projectTitle'>): Promise<BookIllustrationResult> {
         const agent = await drizzleDb.query.agents.findFirst({
             where: (agents, { eq }) => eq(agents.id, book.agentId)

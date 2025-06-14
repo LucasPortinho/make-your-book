@@ -6,4 +6,5 @@ export type UserModel = {
     email: string,
     passwordHash: string,
     createdAt: string,
+    isAdmin: boolean
 }

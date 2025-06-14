@@ -1,5 +1,5 @@
 import { LibraryTable } from "@/components/LibraryTable"
-import { findAllByUserCached } from "@/lib/queries/private-data-books"
+import { findAllBooksByUserCached } from "@/lib/queries/private-data-books"
 import { Metadata } from "next"
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function MyComicsPage() { 
     const userId = 'user-003'  // TODO: Lógica para pegar usuário
-    const books = await findAllByUserCached(userId)
+    const books = await findAllBooksByUserCached(userId)
 
     const styleMapping = {
         drawer: 'Desenhista',

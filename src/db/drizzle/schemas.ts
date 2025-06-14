@@ -1,4 +1,4 @@
-import { sqliteTable } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable } from "drizzle-orm/sqlite-core";
 import { text } from 'drizzle-orm/sqlite-core'
 import { InferInsertModel, InferSelectModel, relations } from "drizzle-orm";
 
@@ -10,6 +10,7 @@ export const usersTable = sqliteTable('users', {
     email: text('email').notNull().unique(),
     passwordHash: text('password_hash').notNull(),
     createdAt: text('created_at').notNull(),
+    isAdmin: integer("is_admin", { mode: 'boolean' }).notNull().default(false),
 })
 
 export const booksTable = sqliteTable('books', {
@@ -26,9 +27,11 @@ export const booksTable = sqliteTable('books', {
 
 export const agentsTable = sqliteTable('agents', {
     id: text('id').primaryKey(),
+    name: text('name').notNull(),
     model: text('model').notNull(),
     style: text('style').notNull(),
     instructions: text('instructions'),
+    ownerId: text('owner_id').references(() => usersTable.id, { onDelete: 'cascade' }),
 })
 
 // Many books to one user and many books to one agent
@@ -44,11 +47,16 @@ export const booksRelations = relations(booksTable, ({ one }) => ({
 }))
 
 export const usersRelations = relations(usersTable, ({ many }) => ({
-    books: many(booksTable)
+    books: many(booksTable),
+    agents: many(agentsTable),
 }))
 
-export const agentsRelations = relations(agentsTable, ({ many }) => ({
-    books: many(booksTable)
+export const agentsRelations = relations(agentsTable, ({ many, one }) => ({
+    books: many(booksTable),
+    owner: one(usersTable, {
+        fields: [agentsTable.ownerId],
+        references: [usersTable.id]
+    })
 }))
 
 export type BooksTableSelectModel = InferSelectModel<typeof booksTable>

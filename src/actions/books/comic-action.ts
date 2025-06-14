@@ -3,6 +3,7 @@
 import { BookCreateSchema } from "@/lib/validations"
 import { BookModel } from "@/models/book-model"
 import { getZodErrorMessages } from "@/utils/get-zod-error-messages"
+import { makeRandomString } from "@/utils/make-random-string"
 import { makeSlugFromText } from "@/utils/make-slug-from-text"
 import { mkdir, writeFile } from "fs/promises"
 import { extname, resolve } from "path"
@@ -13,7 +14,7 @@ type ComicActionState = {
 }
 
 export async function comicAction(prevState: ComicActionState, formData: FormData): Promise<ComicActionState> {
-    // TODO: verificar a autenticação
+    // TODO: verificar a autenticação e corrigir bug de salvar mesmo com erro nos dados
     const makeResult = ({ url='', errors=[''] }) => ({ url, errors })
     
     if (!(formData instanceof FormData)) {
@@ -74,5 +75,8 @@ export async function comicAction(prevState: ComicActionState, formData: FormDat
     }
 
     const validData = zodParsedObj.data
-    return {}
+    console.log(validData)
+    return {
+        success: `true-${makeRandomString()}`
+    }
 } 

@@ -1,73 +1,55 @@
 'use client'
 
-import { BookModel } from "@/models/book-model"
-import { formatDatetime } from "@/utils/format-dates"
 import { 
-    ColumnDef, useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, 
-    SortingState, getSortedRowModel, Row, ColumnFiltersState, getFilteredRowModel 
+    ColumnDef, useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, ColumnFiltersState, getFilteredRowModel 
 } from "@tanstack/react-table"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { ArrowUpDown } from "lucide-react"
-import { redirect } from "next/navigation"
 import { Input } from "@/components/ui/input"
+import { IaModel } from "@/models/ia-model"
 
-export type TableData = Pick<BookModel, 'projectTitle' | 'modifiedAt' | 'id'> & {
+export type TableData = Pick<IaModel, 'name' | 'model'> & {
     style: string
+    owner: string
 }
 const columns: ColumnDef<TableData>[] = [
     {
-        accessorKey: "projectTitle",
-        header: "Título",
-    },
-    {
-        accessorKey: "modifiedAt",
-        header: ({ column }) => {
-            return (
-                <Button variant="ghost" className="cursor-pointer" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-                    Data <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
-
-        cell: ({ row }) => {
-            const dateStr =  formatDatetime(row.getValue("modifiedAt"))
-            return dateStr
-        }
+        accessorKey: "name",
+        header: "Nome",
     },
     {
         accessorKey: "style",
         header: "Estilo", 
     },
+    {
+        accessorKey: "model",
+        header: "Modelo",
+    },
+    {
+        accessorKey: "owner",
+        header: "Criador",
+    }
 ]
 
-type LibraryTableProps = {
+type AgentsTableProps = {
     data: TableData[],
     title: string
 }
 
-export function LibraryTable({ data, title }: LibraryTableProps) {
-    const [sortingState, setSortingState] = useState<SortingState>([])
+export function AgentsTable({ data, title }: AgentsTableProps) {
     const [columnsFilterState, setColumnsFilterState] = useState<ColumnFiltersState>([])
     const table = useReactTable({
         columns,
         data,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        onSortingChange: setSortingState,
         getFilteredRowModel: getFilteredRowModel(),
         onColumnFiltersChange: setColumnsFilterState,
         state: {
-            sorting: sortingState,
             columnFilters: columnsFilterState
         }
     })
-
-    function handleClick(row: Row<TableData>) {
-        redirect(`/home/my-books/${row.original.id}`) // TODO: redirect pro slug
-    }
     
     return (
         <>
@@ -76,10 +58,10 @@ export function LibraryTable({ data, title }: LibraryTableProps) {
                 <div>
                     <div className="flex items-center py-4">
                         <Input 
-                        placeholder="Pesquise títulos."
-                        value={(table.getColumn("projectTitle")?.getFilterValue() as string) ?? ""}
+                        placeholder="Pesquise pelo nome."
+                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
-                            table.getColumn("projectTitle")?.setFilterValue(event.target.value)
+                            table.getColumn("name")?.setFilterValue(event.target.value)
                         }
                         className="w-xs mx-3 sm:w-sm lg:w-3xl"
                         />
@@ -110,8 +92,6 @@ export function LibraryTable({ data, title }: LibraryTableProps) {
                                     <TableRow
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
-                                        onClick={() => handleClick(row)}
-                                        className="cursor-pointer"
                                     >
                                         {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
@@ -123,7 +103,7 @@ export function LibraryTable({ data, title }: LibraryTableProps) {
                                 ) : (
                                     <TableRow>
                                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                                        Nada encontrado.
+                                        No results.
                                     </TableCell>
                                     </TableRow>
                                 )}

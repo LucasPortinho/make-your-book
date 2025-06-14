@@ -2,8 +2,11 @@ import { AgentForm } from "@/components/AgentsForm"
 import { Metadata } from "next"
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = {
-    title: 'Criar agentes'
+export async function generateMetadata(): Promise<Metadata> {
+    return {
+        title: 'Criar agentes',
+        description: 'Crie seus próprios agentes de inteligência artificial'
+    }
 }
 
 export default function CreateAgentPage() {

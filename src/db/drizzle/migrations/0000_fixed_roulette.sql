@@ -1,8 +1,11 @@
 CREATE TABLE `agents` (
 	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
 	`model` text NOT NULL,
 	`style` text NOT NULL,
-	`instructions` text
+	`instructions` text,
+	`owner_id` text,
+	FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `books` (
@@ -26,7 +29,8 @@ CREATE TABLE `users` (
 	`birthdate` text NOT NULL,
 	`email` text NOT NULL,
 	`password_hash` text NOT NULL,
-	`created_at` text NOT NULL
+	`created_at` text NOT NULL,
+	`is_admin` integer DEFAULT false NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);
