@@ -1,6 +1,9 @@
 import { LibraryTable } from "@/components/LibraryTable"
 import { findAllBooksByUserAndTypeCached } from "@/lib/queries/private-data-books"
+import { AuthenticationRepository } from "@/repositories"
+import { getPublicBookData } from "@/utils/get-public-book-data"
 import { Metadata } from "next"
+import { redirect } from "next/navigation"
 
 export const dynamic = 'force-dynamic'
 
@@ -12,31 +15,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MySummariesPage() { 
-    const userId = 'user-003'  // TODO: Lógica para pegar usuário
-    const books = await findAllBooksByUserAndTypeCached(userId, "summary")
-
-    const styleMapping = {
-        drawer: 'Desenhista',
-        anime: 'Anime',
-        colorful: 'Colorido',
-        cartoon: 'Cartoon',
-        magic: 'Mágico',
-        realistic: 'Magic',
-        explanatory: 'Explicatório',
-        funny: 'Engraçado',
-        dynamic: 'Dinâmico',
-        organizer: 'Organizar o conteúdo',
-        translator: 'Tradutor',
+    const user = await AuthenticationRepository.getUserByLoginSession() 
+    
+    if (!user) {
+        redirect('/home?error=login-required')
     }
+    const books = await findAllBooksByUserAndTypeCached(user.id, "summary")
 
-    const booksData = books.map(book => {
-        return { 
-            modifiedAt: book.modifiedAt,
-            style: styleMapping[book.iaAgent.style],
-            projectTitle: book.projectTitle,
-            id: book.id,
-        }
-    })
+    const booksData = await getPublicBookData(books)
 
     return <LibraryTable title="Meus resumos" data={booksData} />
 }

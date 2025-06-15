@@ -19,8 +19,9 @@ export type AuthenticationRepository = {
     signJwt(jwtPayload: JwtPayload): Promise<string>;
 
     // Verify login
-    verifyLoginSession(id: string): Promise<boolean>;
+    verifyLoginSession(): Promise<boolean>;
     requireLoginSessionOrRedirect(): Promise<void>;
+    getUserByLoginSession(): Promise<UserModel | false>
 
     // Login management
     getUserByEmail(email: string): Promise<UserModel>;

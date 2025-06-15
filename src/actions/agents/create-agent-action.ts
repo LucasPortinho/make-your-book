@@ -2,7 +2,7 @@
 
 import { AgentCreateSchema } from "@/lib/validations"
 import { IaModel } from "@/models/ia-model"
-import { IARepository } from "@/repositories"
+import { AIRepository } from "@/repositories"
 import { getZodErrorMessages } from "@/utils/get-zod-error-messages"
 import { makeRandomString } from "@/utils/make-random-string"
 import { v4 as uuidv4 } from 'uuid'
@@ -39,7 +39,7 @@ export async function createAgentAction(prevState: CreateAgentActionProps, formD
         instructions: validData.instructions,
     }
     
-    await IARepository.createAgent(agent)
+    await AIRepository.createAgent(agent)
     return {
         success: `true-${makeRandomString()}`
     }

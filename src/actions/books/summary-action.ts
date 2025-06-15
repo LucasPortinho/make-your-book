@@ -1,12 +1,14 @@
 'use server'
 
 import { BookCreateSchema } from "@/lib/validations"
-import { BookModel } from "@/models/book-model"
+import { AIRepository, AuthenticationRepository } from "@/repositories"
 import { getZodErrorMessages } from "@/utils/get-zod-error-messages"
 import { makeRandomString } from "@/utils/make-random-string"
 import { makeSlugFromText } from "@/utils/make-slug-from-text"
 import { mkdir, writeFile } from "fs/promises"
+import { redirect } from "next/navigation"
 import { extname, resolve } from "path"
+import { v4 as uuidv4 } from 'uuid'
 
 type SummaryActionState = {
     errors?: string[],
@@ -14,11 +16,26 @@ type SummaryActionState = {
 }
 
 export async function summaryAction(prevState: SummaryActionState, formData: FormData): Promise<SummaryActionState> {
-    // TODO: verificar a autenticação e corrigir bug de salvar mesmo com erro nos dados
     const makeResult = ({ url='', errors=[''] }) => ({ url, errors })
+
+    const user = await AuthenticationRepository.getUserByLoginSession()
+
+    if (!user) {
+        redirect('/home?=login-required')
+    }
 
     if (!(formData instanceof FormData)) {
         return makeResult({ errors: ['Dados inválidos'] })
+    }
+
+    const formDataToObj = Object.fromEntries(formData.entries())
+    const zodParsedObj = BookCreateSchema.safeParse(formDataToObj)
+
+    if (!zodParsedObj.success) {
+        const errors = getZodErrorMessages(zodParsedObj.error.format())
+        return {
+            errors
+        }
     }
 
     const file = formData.get('file')
@@ -64,18 +81,24 @@ export async function summaryAction(prevState: SummaryActionState, formData: For
     const fileServerUrl = process.env.FILE_SERVER_URL || 'http://localhost:3000/uploads'
     const originalUrl = `${fileServerUrl}/${uniqueFileName}`
 
-    const formDataToObj = Object.fromEntries(formData.entries())
-    const zodParsedObj = BookCreateSchema.safeParse(formDataToObj)
-
-    if (!zodParsedObj.success) {
-        const errors = getZodErrorMessages(zodParsedObj.error.format())
-        return {
-            errors
-        }
+    const validData = zodParsedObj.data
+    const pdfBook = {
+        id: uuidv4(),
+        ownerId: user.id,
+        slug: uniqueFileName,
+        originalUrl,
+        projectTitle: validData.title,
+        agentId: validData.model
     }
 
-    const validData = zodParsedObj.data
-    console.log(validData)
+    try {
+        await AIRepository.summarizePdf(pdfBook)
+    }
+    catch {
+        return makeResult({ errors: ['Erro ao gerar resumo'] })
+    }
+    
+
     return {
         success: `true-${makeRandomString()}`
     }

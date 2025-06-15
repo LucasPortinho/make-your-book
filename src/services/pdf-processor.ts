@@ -35,7 +35,16 @@ export class PdfProcessorService {
   }
 
   async loadPdf(filePath: string): Promise<Document[]> {
-    const loader = new PDFLoader(filePath);
+    const response = await fetch(filePath)
+
+    if (!response.ok) {
+      throw new Error(`Erro ao baixar o PDF: ${response.statusText}`)
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const blob = new Blob([arrayBuffer], { type: "application/pdf" });
+
+    const loader = new PDFLoader(blob);
     return await loader.load();
   }
 
@@ -242,7 +251,7 @@ export class PdfProcessorService {
 
     // Extrair pontos-chave
     const keyPointsResponse = await this.llm.invoke(
-      `Extraia 5-7 pontos-chave deste resumo em formato de array JSON em português: ${summary}`
+      `Extraia 5-7 pontos-chave deste resumo em formato de array JSON em português: ${summary}. Os objetos deve ser { ponto: content }`
     );
     const cleanResponse = keyPointsResponse.content.toString().replace('json', '').replace('```', '').replace('```', '').trim()
     const keyPoints = JSON.parse(cleanResponse);

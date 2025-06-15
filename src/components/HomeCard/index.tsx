@@ -1,10 +1,12 @@
 'use client'
 
-import { redirect } from "next/navigation"
+import { redirect, useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { BookIcon, LucideIcon, MoveUpRight } from "lucide-react";
+import { useEffect } from 'react'
+import { toast } from "react-toastify";
 
 type BenefitModel = {
     title: string;
@@ -23,6 +25,20 @@ export function HomeCard({ mode, benefits, title, description, buttonText='Exper
     function handleClick() {
         redirect(`/home/${mode}`)
     }
+
+    const searchParams = useSearchParams()
+    const error = searchParams.get('error')
+    const router = useRouter()
+
+    useEffect(() => {
+        if (error == 'login-required') {
+            toast.dismiss()
+            toast.error('Faça login para poder ter acesso completo ao site.')
+            const url = new URL(window.location.href)
+            url.searchParams.delete('error')
+            router.replace(url.toString())
+        }
+    }, [error, router])
 
     return (
         <Card className="w-full bg-slate-100 row-span-20">

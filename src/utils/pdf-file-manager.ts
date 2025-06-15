@@ -111,8 +111,11 @@ export class PdfFileManager {
     const outputPath = path.join(this.uploadsDir, filename);
     
     await fs.writeFile(outputPath, pdfBytes);
-    
-    return `/illustrated/${filename}`;
+
+    const fileServerUrl = process.env.SERVER_URL
+    const modifiedUrl = `${fileServerUrl}/illustrated/${filename}`
+
+    return modifiedUrl
   }
 
   async createComicPdf(comicPages: ComicPage[]): Promise<string> {
@@ -162,7 +165,10 @@ export class PdfFileManager {
     
     await fs.writeFile(outputPath, pdfBytes);
     
-    return `/illustrated/${filename}`;
+    const fileServerUrl = process.env.SERVER_URL
+    const modifiedUrl = `${fileServerUrl}/illustrated/${filename}`
+    
+    return modifiedUrl
   }
 
   async saveSummaryAsPdf(summary: BookSummary): Promise<string> {
@@ -287,8 +293,10 @@ export class PdfFileManager {
     const outputPath = path.join(this.uploadsDir, filename);
     
     await fs.writeFile(outputPath, pdfBytes);
+    const fileServerUrl = process.env.SERVER_URL
+    const modifiedUrl = `${fileServerUrl}/illustrated/${filename}`
     
-    return `/illustrated/${filename}`;
+    return modifiedUrl
   }
 
   async saveSummaryAsMarkdown(summary: BookSummary): Promise<string> {
@@ -316,7 +324,10 @@ ${summary.keyPoints.map(point => `- ${point.ponto}`).join('\n')}
     const outputPath = path.join(this.uploadsDir, filename);
     
     await fs.writeFile(outputPath, markdown);
+
+    const fileServerUrl = process.env.SERVER_URL
+    const modifiedUrl = `${fileServerUrl}/illustrated/${filename}`
     
-    return `/illustrated/${filename}`;
+    return modifiedUrl
   }
 }

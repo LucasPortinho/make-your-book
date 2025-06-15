@@ -162,4 +162,16 @@ export class DrizzleAuthenticationRepository implements AuthenticationRepository
         return user
     }
 
+    async getUserByLoginSession(): Promise<UserModel | false> {
+        const jwtPayload = await this.getLoginJwtSession();
+        if (!jwtPayload) return false;
+
+        const user = await drizzleDb.query.users.findFirst({
+            where: (users, { eq }) => eq(users.id, jwtPayload.id)
+        })
+
+        if (!user) return false;
+        return user
+    }
+
 }

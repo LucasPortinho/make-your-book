@@ -193,15 +193,15 @@ export class DrizzleArtificialIntelligenceRepository implements ArtificalIntelli
         return illustration
     }
 
-    async summarizePdf(book: Pick<BookModel, 'id' | 'ownerId' | 'slug' | 'originalUrl' | 'projectTitle'>): Promise<SummaryResult> {
+    async summarizePdf(book: Pick<BookModel, 'id' | 'ownerId' | 'slug' | 'originalUrl' | 'projectTitle' | 'agentId'>): Promise<SummaryResult> {
         const summary = await this.pdfProcessor.summarizePdf(book.originalUrl);
         const bookModel: BookModel = {
             id: book.id,
             ownerId: book.ownerId,
-            slug: book.originalUrl,
+            slug: book.slug,
             originalUrl: book.originalUrl,
             projectTitle: book.projectTitle,
-            agentId: 'summarizer',
+            agentId: book.agentId,
             modifiedAt: new Date().toISOString(),
             modifiedUrl: summary.markdownPath,
             type: 'summary'

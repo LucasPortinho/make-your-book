@@ -1,5 +1,7 @@
 import { IFrame } from "@/components/IFrame"
 import { findBookByUserAndIdCached } from "@/lib/queries/private-data-books"
+import { AuthenticationRepository } from "@/repositories"
+import { redirect } from "next/navigation"
 
 export const dynamic = 'force-dynamic'
 
@@ -9,8 +11,13 @@ type MyPageProps = {
 
 export default async function MyBook({ params }: MyPageProps) {
     const { id } = await params
-    const userId = 'user-003' // TODO: Lógica para pegar usuário em questão de autenticação
-    const book = await findBookByUserAndIdCached(userId, id)
+    const user = await AuthenticationRepository.getUserByLoginSession()
+
+    if (!user) {
+        redirect('/home?error=login-required')
+    }
+    
+    const book = await findBookByUserAndIdCached(user.id, id)
 
     return (
         <IFrame src={book.modifiedUrl} labelTitle={book.projectTitle} />

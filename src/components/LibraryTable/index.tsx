@@ -13,9 +13,10 @@ import { ArrowUpDown } from "lucide-react"
 import { redirect } from "next/navigation"
 import { Input } from "@/components/ui/input"
 
-export type TableData = Pick<BookModel, 'projectTitle' | 'modifiedAt' | 'id'> & {
-    style: string
+export type TableData = Pick<BookModel, 'projectTitle' | 'modifiedAt' | 'id' > & {
+    agentName: string;
 }
+
 const columns: ColumnDef<TableData>[] = [
     {
         accessorKey: "projectTitle",
@@ -37,8 +38,8 @@ const columns: ColumnDef<TableData>[] = [
         }
     },
     {
-        accessorKey: "style",
-        header: "Estilo", 
+        accessorKey: "agentName",
+        header: "Agente", 
     },
 ]
 
