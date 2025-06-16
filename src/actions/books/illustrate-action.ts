@@ -6,6 +6,9 @@ import { makeSlugFromText } from "@/utils/make-slug-from-text"
 import { extname, resolve } from "path"
 import { mkdir, writeFile } from "fs/promises"
 import { makeRandomString } from "@/utils/make-random-string"
+import { AIRepository, AuthenticationRepository } from "@/repositories"
+import { redirect } from "next/navigation"
+import { v4 as uuidv4 } from 'uuid'
 
 type IllustrateActionState = {
     errors?: string[],
@@ -15,9 +18,25 @@ type IllustrateActionState = {
 export async function illustrateAction(prevState: IllustrateActionState, formData: FormData): Promise<IllustrateActionState> {
     // TODO: verificar a autenticação e corrigir bug de salvar mesmo com erro nos dados
     const makeResult = ({ url='', errors=[''] }) => ({ url, errors })
+
+    const user = await AuthenticationRepository.getUserByLoginSession()
+
+    if (!user) {
+        redirect('/home?error=login-required')
+    }
     
     if (!(formData instanceof FormData)) {
         return makeResult({ errors: ['Dados inválidos'] })
+    }
+
+    const formDataToObj = Object.fromEntries(formData.entries())
+    const zodParsedObj = BookCreateSchema.safeParse(formDataToObj)
+
+    if (!zodParsedObj.success) {
+        const errors = getZodErrorMessages(zodParsedObj.error.format())
+        return {
+            errors
+        }
     }
 
     const file = formData.get('file')
@@ -63,18 +82,23 @@ export async function illustrateAction(prevState: IllustrateActionState, formDat
     const fileServerUrl = process.env.FILE_SERVER_URL || 'http://localhost:3000/uploads'
     const originalUrl = `${fileServerUrl}/${uniqueFileName}`
 
-    const formDataToObj = Object.fromEntries(formData.entries())
-    const zodParsedObj = BookCreateSchema.safeParse(formDataToObj)
-
-    if (!zodParsedObj.success) {
-        const errors = getZodErrorMessages(zodParsedObj.error.format())
-        return {
-            errors
-        }
+    const validData = zodParsedObj.data
+    const pdfBook = {
+        id: uuidv4(),
+        ownerId: user.id,
+        slug: uniqueFileName,
+        originalUrl,
+        projectTitle: validData.title,
+        agentId: validData.model
     }
 
-    const validData = zodParsedObj.data
-    console.log(validData)
+    try {
+        await AIRepository.generateBookIllustrations(pdfBook)
+    }
+    catch {
+        return makeResult({ errors: ['Erro ao gerar ilustração'] })
+    }
+    
     return {
         success: `true-${makeRandomString()}`
     }

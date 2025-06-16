@@ -21,10 +21,11 @@ type BookFormProps = {
     description: string;
     buttonText: string;
     maxFileBytes: number;
-    agents: IaModel[]
+    agents: IaModel[];
+    isDisabled?: boolean
 }
 
-export function BookForm({ mode, title, description, buttonText, maxFileBytes, agents }: BookFormProps) {
+export function BookForm({ mode, title, description, buttonText, maxFileBytes, agents, isDisabled=false }: BookFormProps) {
     const actionsMap = {
         illustrate: illustrateAction,
         summary: summaryAction,
@@ -128,11 +129,12 @@ export function BookForm({ mode, title, description, buttonText, maxFileBytes, a
                     <Button 
                     className="w-full transition cursor-pointer bg-white text-slate-800 hover:bg-slate-100" 
                     type="button" 
-                    onClick={handleClick}>
+                    onClick={handleClick}
+                    disabled={isPending || isDisabled}>
                         Enviar arquivo <UploadIcon />
                     </Button>
 
-                    <Button disabled={isPending} className="w-full transition cursor-pointer mt-2" type="submit" >
+                    <Button disabled={isPending || isDisabled} className="w-full transition cursor-pointer mt-2" type="submit" >
                         {buttonText} <NotebookPen />
                     </Button>
 

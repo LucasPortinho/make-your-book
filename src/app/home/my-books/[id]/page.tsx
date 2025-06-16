@@ -1,4 +1,5 @@
 import { IFrame } from "@/components/IFrame"
+import { ReadMarkdown } from "@/components/ReadMarkdown"
 import { findBookByUserAndIdCached } from "@/lib/queries/private-data-books"
 import { AuthenticationRepository } from "@/repositories"
 import { redirect } from "next/navigation"
@@ -20,6 +21,12 @@ export default async function MyBook({ params }: MyPageProps) {
     const book = await findBookByUserAndIdCached(user.id, id)
 
     return (
-        <IFrame src={book.modifiedUrl} labelTitle={book.projectTitle} />
+        <>
+            {book.type === 'summary' ? (
+                <ReadMarkdown markdownSrc={book.modifiedUrl} />
+            ) : (
+                <IFrame src={book.modifiedUrl} labelTitle={book.projectTitle} />
+            )}
+        </>
       );
 }

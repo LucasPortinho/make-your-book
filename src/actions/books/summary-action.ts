@@ -21,7 +21,7 @@ export async function summaryAction(prevState: SummaryActionState, formData: For
     const user = await AuthenticationRepository.getUserByLoginSession()
 
     if (!user) {
-        redirect('/home?=login-required')
+        redirect('/home?error=login-required')
     }
 
     if (!(formData instanceof FormData)) {

@@ -9,3 +9,11 @@ export const findAgentsPublicAndByUserId = cache(async(userId: string) => {
         return agents
     }
 )
+
+export const findAllPublicAgents = cache(async() => {
+        const agents = await AIRepository.findAllPublicAgents()
+        if (!agents) notFound();
+        return agents
+    }
+)
+

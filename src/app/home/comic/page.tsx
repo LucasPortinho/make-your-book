@@ -1,14 +1,25 @@
 import { BookForm } from "@/components/BookForm"
-import { findAgentsPublicAndByUserId } from "@/lib/queries/private-data-agents"
+import { findAgentsPublicAndByUserId, findAllPublicAgents } from "@/lib/queries/private-data-agents"
+import { IaModel } from "@/models/ia-model"
+import { AuthenticationRepository } from "@/repositories"
 
 export const dynamic = 'force-dynamic'
 
 export default async function ComicPage() {
     const maxFileBytes = Number(process.env.MAX_BYTES) || 0
-    // TODO: lógica para pegar usuário
-    const userId = 'user_1'
-    const agents = await findAgentsPublicAndByUserId(userId)
 
+    const user = await AuthenticationRepository.getUserByLoginSession();
+
+    let agents: IaModel[], isDisabled: boolean = true;
+    if (!user) {
+        agents = await findAllPublicAgents();
+        isDisabled = true
+    }
+    else {
+        agents = await findAgentsPublicAndByUserId(user.id)
+        isDisabled = false
+    }
+    
     return (
         <BookForm 
         buttonText="Gerar gibi"
@@ -17,6 +28,7 @@ export default async function ComicPage() {
         mode="comic"
         title="Gibis"
         agents={agents}
+        isDisabled={isDisabled}
         />
     )
 }
